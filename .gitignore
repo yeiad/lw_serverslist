@@ -21,3 +21,6 @@
 
 
 public/error_log
+###> symfony/asset-mapper ###
+/public/assets/
+###< symfony/asset-mapper ###
