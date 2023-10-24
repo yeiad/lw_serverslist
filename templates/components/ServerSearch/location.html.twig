@@ -1,0 +1,13 @@
+{% extends 'components/ServerSearch/base.html.twig' %}
+
+{% block choseyour %}Location{% endblock %}
+
+{% block selections %}
+    <label for="location">Location</label>
+
+    <select name="location" id="location" data-model="location">
+        {% for option in this.locationOptions %}
+            <option value="{{ option }}">{{ option }}</option>
+        {% endfor %}
+    </select>
+{% endblock selections %}

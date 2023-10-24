@@ -1,5 +1,10 @@
 {% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/range_markers_labels.css') }}">
+{% endblock stylesheets %}
+
 {% block body %}
     {{ component('ServerSearch') }}
-
 {% endblock %}

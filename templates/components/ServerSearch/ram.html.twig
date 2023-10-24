@@ -1,0 +1,21 @@
+{% extends 'components/ServerSearch/base.html.twig' %}
+
+{% block choseyour %}RAM{% endblock %}
+
+{% block selections %}
+    {% for ram in this.ramOptions %}
+
+        <div>
+            <input
+                    type="checkbox"
+                    id="chbx_ram_{{ ram }}"
+                    value="{{ ram }}"
+                    data-model="ram[]"
+            />
+            <label for="chbx_ram_{{ ram }}">{{ ram }}</label>
+        </div>
+    {% endfor %}
+{% endblock selections %}
+
+
+

@@ -1,34 +1,7 @@
 <div {{ attributes }}>
-    <label>Location Search
-        <input
-                type="search"
-                data-model="query"
-        >
-    </label>
-
-    <table>
-        <tr>
-            <th>id</th>
-            <th>Model</th>
-            <th>RAM</th>
-            <th>HDD</th>
-            <th>Location</th>
-            <th>currency</th>
-            <th>Price</th>
-        </tr>
-
-
-        {% for server in this.servers %}
-            <tr>
-                <td>{{ server.id }}</td>
-                <td>{{ server.model }}</td>
-                <td>{{ server.ram }}</td>
-                <td>{{ server.storage }}</td>
-                <td>{{ server.location }}</td>
-                <td>{{ server.currency }}</td>
-                <td>{{ server.price }}</td>
-            </tr>
-        {% endfor %}
-    </table>
-
+    {{ include('components/ServerSearch/location.html.twig') }}
+    {{ include('components/ServerSearch/minimum_storage.html.twig') }}
+    {{ include('components/ServerSearch/ram.html.twig') }}
+    {{ include('components/ServerSearch/storage_type.html.twig') }}
+    {{ include('components/ServerSearch/table.html.twig') }}
 </div>

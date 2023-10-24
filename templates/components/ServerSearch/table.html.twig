@@ -1,0 +1,20 @@
+<table>
+    <tr>
+        <th>Model</th>
+        <th>RAM</th>
+        <th>HDD</th>
+        <th>Location</th>
+        <th>Price</th>
+    </tr>
+
+
+    {% for server in this.servers %}
+        <tr>
+            <td>{{ server.model }}</td>
+            <td>{{ server.ram }}</td>
+            <td>{{ server.storage }}</td>
+            <td>{{ server.location }}</td>
+            <td>{{ server.currency }} {{ server.price }}</td>
+        </tr>
+    {% endfor %}
+</table>

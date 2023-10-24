@@ -11,13 +11,9 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/', name: 'home')]
 class ServersController extends AbstractController
 {
-    public function __construct(private ServersService $serversService)
+    #[Route('', name: 'list')]
+    public function list(): Response
     {
-    }
-
-    #[Route('', name: 'home_show')]
-    public function show(): Response
-    {
-        return $this->render('servers.html.twig', ['servers'=>$this->serversService]);
+        return $this->render('servers.html.twig');
     }
 }

@@ -1,0 +1,14 @@
+{% extends 'components/ServerSearch/base.html.twig' %}
+
+{% block choseyour %}Storage Type{% endblock %}
+
+{% block selections %}
+    <label for="storage-type">Storage Type</label>
+
+    <select name="storage" id="storage-type" data-model="storage">
+        {% for option in this.storageTypeOptions %}
+            <option value="{{ option }}">{{ option }}</option>
+        {% endfor %}
+
+    </select>
+{% endblock selections %}
