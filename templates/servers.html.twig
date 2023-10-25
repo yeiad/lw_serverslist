@@ -5,7 +5,17 @@
 {% endblock stylesheets %}
 
 {% block body %}
+    <div class="sticky-top" data-controller="scroll-to-top">
+        <button
+                class="btn btn-light scrolling"
+                data-action="click->scroll-to-top#scroll"
+        >
+            scroll to top
+            a</button>
+    </div>
     <div class="container">
+
+
         <div class="row">
             <div class="col text-center">
                 <h1>LeaseWeb Servers Demo</h1>
@@ -13,7 +23,7 @@
         </div>
     <div class="row">
 
-    <div class="row">
-        {{ component('ServerSearch') }}
+        <div class="row">
+            {{ component('ServerSearch') }}
     </div>
 {% endblock %}
