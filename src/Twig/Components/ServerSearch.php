@@ -7,6 +7,7 @@ use App\Helper\RamHelper;
 use App\Helper\StorageHelper;
 use App\Service\Servers\ServersService;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
+use Symfony\UX\LiveComponent\Attribute\LiveAction;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
 
@@ -61,5 +62,12 @@ class ServerSearch
         );
 
     }
+
+    #[LiveAction]
+    public function resetIds()
+{
+    $this->ids = [];
+
+}
 
 }

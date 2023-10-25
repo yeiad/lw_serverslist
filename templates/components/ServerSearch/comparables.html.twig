@@ -35,8 +35,25 @@
                     <td>{{ comparable.currency }} {{ comparable.price }}</td>
                 {% endfor %}
             </tr>
+            <tr>
+                <th>Compare</th>
+
+                {% for comparable in this.comparables %}
+                    <td>
+                        <label>
+                            <input type="checkbox" data-model="ids[]" value="{{ comparable.id }}">
+                        </label>
+                    </td>
+
+                {% endfor %}
+            </tr>
 
             </tbody>
         </table>
+        <button
+                data-action="live#action"
+                data-action-name="resetIds"
+                class="btn btn-primary"
+                >clear</button>
 
     {% endif %}
