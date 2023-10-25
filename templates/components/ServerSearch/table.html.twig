@@ -22,7 +22,7 @@
                     <td>{{ server.ram }}</td>
                     <td>{{ server.storage }}</td>
                     <td>{{ server.location }}</td>
-                    <td>{{ server.currency }} {{ server.price }}</td>
+                    <td>{{ server.currency }} {{ server.price|number_format(2, '.', ',') }}</td>
                 </tr>
             {% endfor %}
         </table>
