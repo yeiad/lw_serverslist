@@ -5,6 +5,4 @@
  * which should already be in your base.html.twig.
  */
 
-import { startStimulusApp } from '@symfony/stimulus-bundle';
-
-const app = startStimulusApp();
+import 'bootstrap.js';

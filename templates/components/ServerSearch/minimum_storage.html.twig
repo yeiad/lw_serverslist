@@ -3,26 +3,26 @@
 {% block choseyour %}Minimum Storage{% endblock %}
 
 {% block selections %}
-    <div>
 
-        <label>
+<div id="range_size">
 
-            <input
-                    type="range"
-                    list="markers"
-                    data-model="totalStorageSize"
-                    min="0"
-                    max="{{ this.storageOptions|length - 1 }}"
-                    step="1"
-            >
-        </label>
-
-    </div>
-
+        <input
+                name="minimum-storage"
+                type="range"
+                list="markers"
+                data-model="totalStorageSize"
+                min="0"
+                max="{{ this.storageOptions|length - 1 }}"
+                step="1"
+                orient="vertical"
+        >
     <datalist id="markers">
+
+
         {% for key, option in this.storageOptions %}
             <option value="{{ key }}" label="{{ option }}"></option>
         {% endfor %}
 
     </datalist>
+</div>
 {% endblock selections %}

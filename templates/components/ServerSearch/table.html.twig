@@ -1,20 +1,28 @@
-<table>
-    <tr>
-        <th>Model</th>
-        <th>RAM</th>
-        <th>HDD</th>
-        <th>Location</th>
-        <th>Price</th>
-    </tr>
+<div class="row">
+    <h2>Server List</h2>
 
-
-    {% for server in this.servers %}
+    <table class="table">
         <tr>
-            <td>{{ server.model }}</td>
-            <td>{{ server.ram }}</td>
-            <td>{{ server.storage }}</td>
-            <td>{{ server.location }}</td>
-            <td>{{ server.currency }} {{ server.price }}</td>
+            <th>Compare</th>
+            <th>Model</th>
+            <th>RAM</th>
+            <th>HDD</th>
+            <th>Location</th>
+            <th>Price</th>
         </tr>
-    {% endfor %}
-</table>
+
+
+        {% for server in this.servers %}
+            <tr>
+                <td><label>
+                        <input type="checkbox" data-model="ids[]" value="{{ server.id }}"> {{ server.id }}
+                    </label></td>
+                <td>{{ server.model }}</td>
+                <td>{{ server.ram }}</td>
+                <td>{{ server.storage }}</td>
+                <td>{{ server.location }}</td>
+                <td>{{ server.currency }} {{ server.price }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>

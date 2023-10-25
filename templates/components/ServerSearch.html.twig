@@ -1,7 +1,28 @@
 <div {{ attributes }}>
-    {{ include('components/ServerSearch/location.html.twig') }}
-    {{ include('components/ServerSearch/minimum_storage.html.twig') }}
-    {{ include('components/ServerSearch/ram.html.twig') }}
-    {{ include('components/ServerSearch/storage_type.html.twig') }}
-    {{ include('components/ServerSearch/table.html.twig') }}
+    <div class="row">
+
+        <h2>Filter</h2>
+        <div class="col">
+            {{ include('components/ServerSearch/location.html.twig') }}
+        </div>
+        <div class="col">
+            {{ include('components/ServerSearch/minimum_storage.html.twig') }}
+        </div>
+        <div class="col">
+            {{ include('components/ServerSearch/storage_type.html.twig') }}
+        </div>
+        <div class="col">
+            {{ include('components/ServerSearch/ram.html.twig') }}
+        </div>
+    </div>
+
+
+    <div class="row">
+        {{ include('components/ServerSearch/comparables.html.twig') }}
+    </div>
+    <div class="row">
+        {{ include('components/ServerSearch/table.html.twig') }}
+    </div>
 </div>
+
+

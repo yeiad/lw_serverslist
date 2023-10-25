@@ -2,23 +2,26 @@
 
 namespace App\Service\Servers;
 
+use App\Helper\RamHelper;
 use App\Helper\StorageHelper;
 use App\Repository\ServerRepository;
 
 class ServersService
 {
 
-    private $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+    private array $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
 
-    public function __construct(private ServerRepository $serverRepository)
+    public function __construct(private readonly ServerRepository $serverRepository)
     {
     }
 
     public function filter(
+        array   $servers = null,
         ?string $location = null,
         ?string $storage = null,
         ?array  $ram = null,
-        ?string $minimumStorage = null
+        ?string $minimumStorage = null,
+        ?array  $ids = null,
     ): array {
 
         $requestSize      = null;
@@ -33,8 +36,8 @@ class ServersService
 
 
         return array_filter(
-            $this->serverRepository->getServersList(),
-            function ($server) use ($location, $storage, $ram, $minimumStorage, $requestSize, $requestUnitIndex) {
+            $servers ?? $this->serverRepository->getServersList(),
+            function ($server) use ($location, $storage, $ram, $minimumStorage, $requestSize, $requestUnitIndex, $ids) {
 
                 foreach (
                     $this->getFilterConditions(
@@ -44,7 +47,8 @@ class ServersService
                         $ram,
                         $minimumStorage,
                         $requestSize,
-                        $requestUnitIndex
+                        $requestUnitIndex,
+                        $ids
                     ) as ['filter_execution_condition' => $isFilterConditionMet, 'filter_test' =>
                     $isLazyLoadedTestPassing]
                 ) {
@@ -100,22 +104,28 @@ class ServersService
             );
     }
 
-    private function isRamMatch(mixed $serverRam, array $ram): bool
+    private function isRamMatch(mixed $serverRam, array $blackList): bool
     {
-        preg_match('/^(?<ram_size>\d+GB)/', $serverRam, $ramSize);
-        ['ram_size' => $ramSize] = $ramSize;
-        return in_array($ramSize, $ram);
+        $blackList = array_diff(RamHelper::RAM_OPTIONS, $blackList);
+        foreach ($blackList as $excludedRam) {
+            if (str_starts_with($serverRam, $excludedRam)) {
+                return false;
+            }
+        }
+
+        return true;
 
     }
 
     private function getFilterConditions(
-        array  $server,
+        array   $server,
         ?string $location,
         ?string $storage,
         ?array  $ram,
         ?string $minimumStorage,
-        ?int   $requestSize,
-        ?int   $requestUnitIndex
+        ?int    $requestSize,
+        ?int    $requestUnitIndex,
+        ?array  $ids
     ): array {
 
         [
@@ -124,21 +134,23 @@ class ServersService
             'storage_size_units' => $unit,
             'storage_count'      => $multiplier,
             'storage_type'       => $type,
-            'ram'                => $serverRam
+            'ram'                => $serverRam,
+            'id'                 => $serverId,
         ] = $server;
 
 
         return [
+
+            [
+                'filter_execution_condition' => null !== $ids,
+                'filter_test'                => function () use ($ids, $serverId) {
+                    return $this->isIdMatch($ids, $serverId);
+                }
+            ],
             [
                 'filter_execution_condition' => $storage,
                 'filter_test'                => function () use ($storage, $type) {
                     return $this->isCorrectType($storage, $type);
-                }
-            ],
-            [
-                'filter_execution_condition' => null !== $location,
-                'filter_test'                => function () use ($serverLocation, $location) {
-                    return $this->isLocationMatching($serverLocation, $location);
                 }
             ],
             [
@@ -160,12 +172,23 @@ class ServersService
                 }
             ],
             [
-                'filter_execution_condition' => null !== $ram,
+                'filter_execution_condition' => $location,
+                'filter_test'                => function () use ($serverLocation, $location) {
+                    return $this->isLocationMatching($serverLocation, $location);
+                }
+            ],
+            [
+                'filter_execution_condition' => null !== $ram && array_diff(RamHelper::RAM_OPTIONS, $ram),
                 'filter_test'                => function () use ($serverRam, $ram) {
                     return $this->isRamMatch($serverRam, $ram);
                 }
             ],
 
         ];
+    }
+
+    private function isIdMatch(array $ids, int $serverId): bool
+    {
+        return in_array($serverId, $ids);
     }
 }

@@ -1,0 +1,42 @@
+
+    {% if this.comparables %}
+        <h2>Compare Selected Servers</h2>
+        <table class="table">
+            <thead>
+            <th>id</th>
+            {% for comparable in this.comparables %}
+                <th>{{ comparable.id }}</th>
+            {% endfor %}
+            </thead>
+            <tbody>
+            <tr>
+                <th>Model</th>
+                {% for comparable in this.comparables %}
+                    <td>{{ comparable.model }} </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <th>RAM</th>
+                {% for comparable in this.comparables %}
+                    <td>{{ comparable.ram }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <th>Storage</th>
+
+                {% for comparable in this.comparables %}
+                    <td>{{ comparable.storage }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <th>Price</th>
+
+                {% for comparable in this.comparables %}
+                    <td>{{ comparable.currency }} {{ comparable.price }}</td>
+                {% endfor %}
+            </tr>
+
+            </tbody>
+        </table>
+
+    {% endif %}

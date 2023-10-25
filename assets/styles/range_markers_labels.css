@@ -1,16 +1,15 @@
+#range_size{
+    display:inline-flex;
+}
 datalist {
     display: flex;
-    flex-direction: column;
     justify-content: space-between;
-    writing-mode: vertical-lr;
-    width: 200px;
+    flex-direction: column-reverse;
 }
 
-option {
-    padding: 0;
-}
 
 input[type="range"] {
-    width: 200px;
-    margin: 0;
+    appearance: slider-vertical;
+    display:inline-flex;
+    margin: 5px;
 }

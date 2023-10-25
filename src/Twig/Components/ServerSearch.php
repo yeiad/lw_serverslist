@@ -15,6 +15,9 @@ class ServerSearch
 {
     use DefaultActionTrait;
 
+
+    #[LiveProp(writable: true)]
+    public array $ids = [];
     #[LiveProp(writable: true)]
     public string $totalStorageSize = '0';
     #[LiveProp(writable: true)]
@@ -32,15 +35,31 @@ class ServerSearch
     public array $locationOptions = LocationHelper::LOCATION_OPTIONS;
     #[LiveProp()]
     public array $storageOptions = StorageHelper::STORAGE_OPTIONS;
-
+    private array $serversList;
+    private array $comparables;
 
     public function __construct(private ServersService $serversService)
     {
+
     }
 
     public function getServers(): array
     {
-        return $this->serversService->filter($this->location, $this->storage, $this->ram, $this->totalStorageSize);
+        return $this->serversList ?? $this->serversList = $this->serversService->filter(null, $this->location, $this->storage, $this->ram, $this->totalStorageSize);
+
+    }
+
+    public function getComparables(): array
+    {
+        return $this->comparables ?? $this->comparables = $this->serversService->filter(
+            $this->serversList ?? $this->getServers(),
+            null,
+            null,
+            null,
+            null ,
+            $this->ids
+        );
+
     }
 
 }

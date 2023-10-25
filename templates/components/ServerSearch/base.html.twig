@@ -1,9 +1,7 @@
-<div>
-    <fieldset>
-        <legend>Chose your {% block choseyour %}{% endblock %}</legend>
 
+        <fieldset>
+            <legend>{% block choseyour %}{% endblock %}</legend>
+            {% block selections %}
+            {% endblock selections %}
+        </fieldset>
 
-        {% block selections %}
-        {% endblock selections %}
-    </fieldset>
-</div>
