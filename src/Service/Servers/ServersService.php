@@ -2,15 +2,20 @@
 
 namespace App\Service\Servers;
 
+use App\Entity\Server;
 use App\Helper\RamHelper;
+use App\Helper\SizeHelper;
 use App\Helper\StorageHelper;
 use App\Repository\ServerRepository;
+use App\ServerFilter\Filter;
+use App\ServerFilter\IdsFilter;
+use App\ServerFilter\LocationFilter;
+use App\ServerFilter\MinimumStorageFilter;
+use App\ServerFilter\RamFilter;
+use App\ServerFilter\TypeFilter;
 
 class ServersService
 {
-
-    private array $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
-
     public function __construct(private readonly ServerRepository $serverRepository)
     {
     }
@@ -36,7 +41,9 @@ class ServersService
 
 
         return array_filter(
-            $servers ?? $this->serverRepository->getServersList(),
+            $servers ?? $this->getServerEntitiesFromDataArray(
+            $this->serverRepository->getServersList()
+        ),
             function ($server) use ($location, $storage, $ram, $minimumStorage, $requestSize, $requestUnitIndex, $ids) {
 
                 foreach (
@@ -49,11 +56,10 @@ class ServersService
                         $requestSize,
                         $requestUnitIndex,
                         $ids
-                    ) as ['filter_execution_condition' => $isFilterConditionMet, 'filter_test' =>
-                    $isLazyLoadedTestPassing]
+                    ) as $filter
                 ) {
-                    if ($isFilterConditionMet) {
-                        if (!$isLazyLoadedTestPassing()) {
+                    if ($filter->isFilterConditionMet()) {
+                        if (!$filter->isLazyLoadedTestPassing()) {
                             return false;
                         }
                     }
@@ -72,53 +78,19 @@ class ServersService
             $request
         );
         ['size' => $requestSize, 'unit' => $requestUnits] = $request;
-        $requestUnitIndex = array_search($requestUnits, $this->units);
+        $requestUnitIndex = array_search($requestUnits, SizeHelper::UNITS);
         return [
             'request_unit_index' => $requestUnitIndex,
             'request_size'       => $requestSize,
         ];
     }
 
-    private function isCorrectType(string $storage, mixed $type): bool
-    {
-        return $storage === $type ||
-               str_starts_with($type, $storage);
-    }
 
-    private function isLocationMatching(mixed $serverLocation, string $location): bool
-    {
-        return str_contains(strtoupper($serverLocation), mb_strtoupper($location));
-    }
-
-    private function isAdequateStorage(
-        mixed $unit,
-        ?int  $requestUnitIndex,
-        mixed $size,
-        mixed $multiplier,
-        ?int  $requestSize
-    ): bool {
-        $unitIndex = array_search($unit, $this->units);
-
-        return $unitIndex > $requestUnitIndex || (
-                $unitIndex === $requestUnitIndex && ($size * $multiplier) >= $requestSize
-            );
-    }
-
-    private function isRamMatch(mixed $serverRam, array $blackList): bool
-    {
-        $blackList = array_diff(RamHelper::RAM_OPTIONS, $blackList);
-        foreach ($blackList as $excludedRam) {
-            if (str_starts_with($serverRam, $excludedRam)) {
-                return false;
-            }
-        }
-
-        return true;
-
-    }
-
+    /**
+     * @return Filter[]
+     */
     private function getFilterConditions(
-        array   $server,
+        Server  $server,
         ?string $location,
         ?string $storage,
         ?array  $ram,
@@ -127,68 +99,48 @@ class ServersService
         ?int    $requestUnitIndex,
         ?array  $ids
     ): array {
-
-        [
-            'location'           => $serverLocation,
-            'storage_size'       => $size,
-            'storage_size_units' => $unit,
-            'storage_count'      => $multiplier,
-            'storage_type'       => $type,
-            'ram'                => $serverRam,
-            'id'                 => $serverId,
-        ] = $server;
-
-
         return [
-
-            [
-                'filter_execution_condition' => null !== $ids,
-                'filter_test'                => function () use ($ids, $serverId) {
-                    return $this->isIdMatch($ids, $serverId);
-                }
-            ],
-            [
-                'filter_execution_condition' => $storage,
-                'filter_test'                => function () use ($storage, $type) {
-                    return $this->isCorrectType($storage, $type);
-                }
-            ],
-            [
-                'filter_execution_condition' => $minimumStorage,
-                'filter_test'                => function () use (
-                    $unit,
-                    $requestUnitIndex,
-                    $size,
-                    $multiplier,
-                    $requestSize
-                ) {
-                    return $this->isAdequateStorage(
-                        $unit,
-                        $requestUnitIndex,
-                        $size,
-                        $multiplier,
-                        $requestSize
-                    );
-                }
-            ],
-            [
-                'filter_execution_condition' => $location,
-                'filter_test'                => function () use ($serverLocation, $location) {
-                    return $this->isLocationMatching($serverLocation, $location);
-                }
-            ],
-            [
-                'filter_execution_condition' => null !== $ram && array_diff(RamHelper::RAM_OPTIONS, $ram),
-                'filter_test'                => function () use ($serverRam, $ram) {
-                    return $this->isRamMatch($serverRam, $ram);
-                }
-            ],
-
+            new IdsFilter($ids, $server->id),
+            new TypeFilter($storage, $server->storageType),
+            new MinimumStorageFilter(
+                $minimumStorage,
+                $server->storageSizeUnits,
+                $requestUnitIndex,
+                $server->storageSize,
+                $server->storageCount,
+                $requestSize,
+                SizeHelper::UNITS
+            ),
+            new LocationFilter($server->location, $location),
+            new RamFilter(RamHelper::RAM_OPTIONS, $server->ram, $ram)
         ];
     }
 
-    private function isIdMatch(array $ids, int $serverId): bool
+    private function getServerEntitiesFromDataArray(array $getServersList): array
     {
-        return in_array($serverId, $ids);
+        $servers = [];
+        foreach ($getServersList as $serversData) {
+            $servers[] = $this->getServerFromDataArray($serversData);
+        }
+        return $servers;
+    }
+
+    private function getServerFromDataArray(array $serversData): Server
+    {
+        $server = new Server();
+
+        foreach ($serversData as $key => $value) {
+            $tokens = explode('_', $key);
+            $length = count($tokens);
+            for ($i = 1; $i < $length; $i++) {
+                $tokens[$i] = ucfirst($tokens[$i]);
+            }
+            $property = implode('', $tokens);
+
+            $server->$property = $value;
+        }
+
+        return $server;
+
     }
 }

@@ -15,12 +15,13 @@ class ServersServiceTest extends KernelTestCase
         $container = static::getContainer();
 
         $serversService = $container->get(ServersService::class);
-        $results = $serversService->filter('Frankfurt');
+        $results        = $serversService->filter(null, 'Frankfurt');
 
-        $this->assertFalse(array_search('Washington D.C.WDC-01', array_column($results,'location')));
+        $this->assertFalse(array_search('Washington D.C.WDC-01', array_column($results, 'location')));
         $this->assertTrue(0 === array_search('FrankfurtFRA-10', array_column($results, 'location')));
 
     }
+
     public function testMinimumStorageFilter(): void
     {
         self::bootKernel();
@@ -28,17 +29,19 @@ class ServersServiceTest extends KernelTestCase
         $container = static::getContainer();
 
         $serversService = $container->get(ServersService::class);
-        $results = $serversService->filter(
+        $results        = $serversService->filter(
             null,
             null,
             null,
-            array_search('24TB',StorageHelper::STORAGE_OPTIONS)
+            null,
+            array_search('24TB', StorageHelper::STORAGE_OPTIONS)
         );
 
-        $this->assertFalse(array_search('2x1TBSATA2', array_column($results,'storage')));
+        $this->assertFalse(array_search('2x1TBSATA2', array_column($results, 'storage')));
         $this->assertTrue(is_int(array_search('24x1TBSATA2', array_column($results, 'storage'))));
 
     }
+
     public function testStorageFilter(): void
     {
         self::bootKernel();
@@ -46,12 +49,13 @@ class ServersServiceTest extends KernelTestCase
         $container = static::getContainer();
 
         $serversService = $container->get(ServersService::class);
-        $results = $serversService->filter(
+        $results        = $serversService->filter(
+            null,
             null,
             'SAS'
         );
 
-        $this->assertFalse(array_search('2x1TBSATA2', array_column($results,'storage')));
+        $this->assertFalse(array_search('2x1TBSATA2', array_column($results, 'storage')));
         $this->assertTrue(is_int(array_search('8x300GBSAS', array_column($results, 'storage'))));
 
     }
